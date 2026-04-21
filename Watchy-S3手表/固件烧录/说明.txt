@@ -1,0 +1,5 @@
+烧录工具下载：https://docs.espressif.com/projects/esp-test-tools/zh_CN/latest/esp32/production_stage/tools/flash_download_tool.html
+烧录教程：https://ai.feishu.cn/wiki/Zpz4wXBtdimBrLk25WdcXzxcnNS
+
+
+出厂固件：7_SEG.ino.merged.bin	地址：0x0

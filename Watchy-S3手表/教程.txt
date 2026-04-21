@@ -1,0 +1,7 @@
+烧录教程：https://ai.feishu.cn/wiki/Zpz4wXBtdimBrLk25WdcXzxcnNS
+
+7_SEG.ino.merged.bin 		0x0
+
+
+
+官方文档：https://watchy.sqfmi.com/docs/getting-started/

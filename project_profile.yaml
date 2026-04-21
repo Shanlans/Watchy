@@ -1,0 +1,44 @@
+project:
+  id: "watchy"
+  name: "Watchy"
+  repo_root: "E:\CP\Watchy"
+  profile_version: "v1"
+
+paths:
+  master_spec: "master_spec/master_spec.md"
+  skill_spec: "master_spec/skill_spec/skill_spec.md"
+  skill_catalog: "master_spec/skill_spec/skill_catalog.md"
+  chat_spec: "master_spec/chat_spec/chat_spec.md"
+  chat_status: "master_spec/chat_spec/chat_status.md"
+  initial_spec: "master_spec/initial_spec/initial_spec.md"
+  comment_spec: "master_spec/comment_spec/comment_spec.md"
+  comment_status: "master_spec/comment_spec/comment_status.md"
+  env_spec: "master_spec/env_spec.md"
+  task_spec: "master_spec/task_spec/task_spec.md"
+  acceptance_catalog: "master_spec/acceptance_spec/acceptance_catalog.md"
+  flow_catalog: "master_spec/flow_spec/flow_catalog.md"
+  procedure_catalog: "master_spec/procedure_spec/procedure_catalog.md"
+  task_root: "task"
+  task_archive: "task/Achieve"
+  test_entry:
+    - "Watchy-S3手表/watchy固件源码"
+
+build:
+  default_profile: "A1_Spec_Only"
+  full_build:
+    command: "platformio run"
+    workdir: "."
+  runtime_smoke:
+    command: "platformio run --target upload"
+    workdir: "."
+
+skills:
+  registry:
+    - "bootstrap-governance"
+  release_pipeline:
+    - "acceptance-build-and-run"
+
+exclusions:
+  third_party:
+    - ".pio/**"
+    - "lib/**"
