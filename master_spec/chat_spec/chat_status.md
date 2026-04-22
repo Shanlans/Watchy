@@ -1,20 +1,20 @@
 # Chat Status Registry
 
 ## Current Status
-- governance_status: initialized
-- session_resume_status: resume_selected
-- active_task: task/Governance_New_Project_Bootstrap.md
-- task_phase: PostReviewUpdated
+- governance_status: active
+- session_resume_status: idle
+- active_task: none
+- task_phase: not_applicable
 - blocking_condition: none
-- acceptance_profile: A1_Spec_Only
-- acceptance_state: passed
-- last_build_exit_code: 0
+- acceptance_profile: not_applicable
+- acceptance_state: not_applicable
+- last_build_exit_code: not_applicable
 - last_runtime_exit_code: not_applicable
-- acceptance_evidence_path: task/Governance_New_Project_Bootstrap.md
+- acceptance_evidence_path: not_applicable
 - release_pipeline_state: not_applicable
 - comment_review_state: not_applicable
-- archive_ready: no
-- last_verified_at: 2026-04-21
+- archive_ready: not_applicable
+- last_verified_at: 2026-04-22
 
 ## Update Rule
 - Keep only the latest effective status in this file.

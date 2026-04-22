@@ -26,10 +26,10 @@ paths:
 build:
   default_profile: "A1_Spec_Only"
   full_build:
-    command: "platformio run"
+    command: "arduino-cli compile --fqbn esp32:esp32:esp32s3:CDCOnBoot=cdc,USBMode=hwcdc --warnings none firmware/arduino/Watchy_7SEG"
     workdir: "."
   runtime_smoke:
-    command: "platformio run --target upload"
+    command: "esptool --chip esp32s3 --port auto --baud 921600 write_flash 0x0"
     workdir: "."
 
 skills:

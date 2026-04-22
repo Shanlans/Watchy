@@ -2,8 +2,8 @@
 
 ## Metadata
 - Path: `master_spec/comment_spec/comment_status.md`
-- Owner: `bootstrap-generated instance`
-- Last updated: `bootstrap date`
+- Owner: Shanlan
+- Last updated: 2026-04-22
 
 ## Pending Reviews
 - (none)

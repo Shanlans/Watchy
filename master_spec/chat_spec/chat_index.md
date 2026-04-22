@@ -1,15 +1,16 @@
 # Chat Index
 
 ## Project State
-- governance_status: `initialized`
+- governance_status: `active`
 
 ## Active Task Index
 
 | Task | Phase | Last Verified | Owning Chat | Last Heartbeat |
 |---|---|---|---|---|
+| (no active tasks) | - | - | - | - |
 
 ## Last Archived Task
-- (none)
+- Governance_New_Project_Bootstrap (Archived 2026-04-22) — initial governance bootstrap completed
 
 ## Update Rule
 - Agent updates this index at: task creation, task phase transition, task archive.
