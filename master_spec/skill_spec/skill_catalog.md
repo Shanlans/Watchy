@@ -13,3 +13,4 @@
 
 ## Entries
 - ``bootstrap-governance``
+- ``firmware-flash``
