@@ -21,7 +21,7 @@ paths:
   task_root: "task"
   task_archive: "task/Achieve"
   test_entry:
-    - "Watchy-S3手表/watchy固件源码"
+    - "Watchy-S3Watch/watchySrc"
 
 build:
   default_profile: "A1_Spec_Only"

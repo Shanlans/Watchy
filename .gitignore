@@ -1,0 +1,20 @@
+# Build artifacts
+firmware/.pio/
+firmware/build/
+firmware/*.log
+firmware/*.txt
+firmware/test_build.cpp
+
+# Flash download tool (large binary, download separately)
+flash_download_tool/
+
+# Arduino build cache
+.arduino/
+
+# OS files
+.DS_Store
+__MACOSX/
+Thumbs.db
+
+# Bootstrap input (contains local paths)
+bootstrap_input.json

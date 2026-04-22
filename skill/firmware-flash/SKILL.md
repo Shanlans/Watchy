@@ -19,7 +19,7 @@ description: Watchy S3 固件烧录流程。涵盖进入 Bootloader 模式、使
 
 | 项目 | 要求 |
 |---|---|
-| 固件文件 | `*.ino.merged.bin` 格式（包含 bootloader + 分区表 + 应用），出厂默认固件位于 `Watchy-S3手表/固件烧录/7_SEG.ino.merged.bin` |
+| 固件文件 | `*.ino.merged.bin` 格式（包含 bootloader + 分区表 + 应用），出厂默认固件位于 `Watchy-S3Watch/firmwareBurn/7_SEG.ino.merged.bin` |
 | 烧录地址 | `0x0` |
 | 芯片类型 | ESP32-S3 |
 | USB 连接 | Watchy S3 通过 USB Type-C 连接电脑，使用内置 USB JTAG/serial 接口 |
@@ -107,7 +107,7 @@ esptool --chip esp32s3 --port COMx --baud 921600 write_flash 0x0 "path/to/firmwa
 ## 出厂固件路径
 
 ```
-Watchy-S3手表/固件烧录/7_SEG.ino.merged.bin    地址: 0x0
+Watchy-S3Watch/firmwareBurn/7_SEG.ino.merged.bin    地址: 0x0
 ```
 
 ## 参考资料
