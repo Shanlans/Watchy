@@ -14,3 +14,4 @@
 ## Entries
 - ``bootstrap-governance``
 - ``firmware-flash``
+- ``watchy-build-setup``

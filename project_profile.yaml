@@ -36,6 +36,7 @@ skills:
   registry:
     - "bootstrap-governance"
     - "firmware-flash"
+    - "watchy-build-setup"
   release_pipeline:
     - "acceptance-build-and-run"
 
