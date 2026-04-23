@@ -7,10 +7,11 @@
 
 | Task | Phase | Last Verified | Owning Chat | Last Heartbeat |
 |---|---|---|---|---|
-| Build_7SEG_WatchFace_Firmware | AcceptancePassed | 2026-04-23 | grandfathered | 2026-04-23T16:50 |
+| (no active tasks) | - | - | - | - |
 
 ## Last Archived Task
 - Governance_New_Project_Bootstrap (Archived 2026-04-22) — initial governance bootstrap completed
+- Build_7SEG_WatchFace_Firmware (Archived 2026-04-23) — full dev loop verified: edit → compile → flash → visible "W" on device
 
 ## Update Rule
 - Agent updates this index at: task creation, task phase transition, task archive.

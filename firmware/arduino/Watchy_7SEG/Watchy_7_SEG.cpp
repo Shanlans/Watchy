@@ -25,6 +25,11 @@ void Watchy7SEG::drawWatchFace(){
       display.drawBitmap(140, 75, charge, 16, 18, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
     }
     #endif
+    // Build marker: top-right "W"
+    display.setFont(&FreeMonoBold9pt7b);
+    display.setTextColor(DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+    display.setCursor(184, 15);
+    display.print("W");
 }
 
 void Watchy7SEG::drawTime(){
