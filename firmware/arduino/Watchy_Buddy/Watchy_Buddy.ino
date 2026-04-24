@@ -81,6 +81,8 @@ void loop() {
   // Button handling — permission accept/deny via Menu/Back
   if (pollEdge(btnMenu)) {
     if (state.prompt.active) {
+      uint32_t now = millis();
+      state.noteApproval(now);               // may set events.heart if <5 sec
       String reply = state.buildPermissionReply(state.prompt.id, "once");
       ble.sendLine(reply);
       state.approvedCount++;
@@ -100,6 +102,9 @@ void loop() {
   // Up/Down reserved for Phase B+
   pollEdge(btnUp);
   pollEdge(btnDown);
+
+  // Advance animation state (blink, override expiry)
+  ui.tick(state);
 
   // Periodic UI refresh (1 Hz)
   static uint32_t lastRender = 0;

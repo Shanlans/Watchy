@@ -29,16 +29,35 @@ String BuddyState::handleLine(const String& line) {
 
     // prompt
     if (doc["prompt"].is<JsonObject>()) {
-      prompt.id = doc["prompt"]["id"] | "";
+      String newId = doc["prompt"]["id"] | "";
+      bool newActive = (newId.length() > 0);
+      // Record startMs only on transition from inactive to active (fresh prompt).
+      if (newActive && (!prompt.active || prompt.id != newId)) {
+        prompt.startMs = millis();
+      }
+      prompt.id = newId;
       prompt.tool = doc["prompt"]["tool"] | "";
       prompt.hint = doc["prompt"]["hint"] | "";
-      prompt.active = (prompt.id.length() > 0);
+      prompt.active = newActive;
     } else {
       prompt.active = false;
       prompt.id = "";
       prompt.tool = "";
       prompt.hint = "";
+      prompt.startMs = 0;
     }
+
+    // Milestone celebrate: fire once per upward crossing.
+    // Thresholds: 1K, 5K, 10K, 50K, 100K tokens_today.
+    static const uint32_t thresholds[] = {1000, 5000, 10000, 50000, 100000};
+    for (uint32_t t : thresholds) {
+      if (tokensToday >= t && lastCelebrationMilestone < t) {
+        lastCelebrationMilestone = t;
+        events.celebrate = true;
+        break;   // fire at most one per heartbeat
+      }
+    }
+
     return String();
   }
 
@@ -84,6 +103,14 @@ String BuddyState::handleLine(const String& line) {
   }
 
   return String();
+}
+
+void BuddyState::noteApproval(uint32_t nowMs) {
+  // Fire HEART event if user approved within 5 sec of prompt appearing.
+  if (prompt.active && prompt.startMs > 0) {
+    uint32_t dt = nowMs - prompt.startMs;
+    if (dt < 5000) events.heart = true;
+  }
 }
 
 String BuddyState::buildPermissionReply(const String& id, const String& decision) {

@@ -10,6 +10,9 @@ enum BuddyMood {
   MOOD_BUSY,
   MOOD_ATTENTION,
   MOOD_SLEEP,
+  MOOD_CELEBRATE,
+  MOOD_HEART,
+  MOOD_IDLE_BLINK,
 };
 
 BuddyMood deriveMood(BuddyState& st, uint32_t nowMs);

@@ -7,6 +7,14 @@ struct PendingPrompt {
   String tool;
   String hint;
   bool active = false;
+  uint32_t startMs = 0;   // millis() when prompt first seen; for <5s fast-approve HEART detection
+};
+
+// Event flags the UI layer consumes to run one-shot animations. Cleared by UI
+// after the animation starts.
+struct BuddyEvents {
+  bool celebrate = false;
+  bool heart     = false;
 };
 
 class BuddyState {
@@ -31,6 +39,13 @@ public:
   uint32_t approvedCount = 0;
   uint32_t deniedCount = 0;
 
+  // Milestone tracking for celebrate events (only fires on upward crossing).
+  // Each entry is the highest threshold already passed.
+  uint32_t lastCelebrationMilestone = 0;
+
+  // Events (one-shot flags consumed by UI)
+  BuddyEvents events;
+
   // mark UI dirty
   bool dirty = true;
 
@@ -47,4 +62,8 @@ public:
 
   // Build permission response
   String buildPermissionReply(const String& id, const String& decision);
+
+  // Called when user just pressed approve/deny. Checks if it was fast (<5s)
+  // for HEART event trigger.
+  void noteApproval(uint32_t nowMs);
 };

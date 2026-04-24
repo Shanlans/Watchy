@@ -52,6 +52,49 @@ void drawBuddy(GxEPD2_BW<GxEPD2_154_D67, GxEPD2_154_D67::HEIGHT>& d,
 
   // Eyes per mood
   switch (mood) {
+    case MOOD_IDLE_BLINK:
+      // Closed eyes: short horizontal lines
+      d.drawLine(cx - EYE_DX - EYE_R, cy + EYE_DY,
+                 cx - EYE_DX + EYE_R, cy + EYE_DY, GxEPD_BLACK);
+      d.drawLine(cx + EYE_DX - EYE_R, cy + EYE_DY,
+                 cx + EYE_DX + EYE_R, cy + EYE_DY, GxEPD_BLACK);
+      break;
+
+    case MOOD_HEART: {
+      // Heart-shaped eyes: two circles on top, triangle pointing down
+      auto heart = [&](int ex, int ey) {
+        d.fillCircle(ex - 3, ey - 1, 3, GxEPD_BLACK);
+        d.fillCircle(ex + 3, ey - 1, 3, GxEPD_BLACK);
+        d.fillTriangle(ex - 5, ey + 1, ex + 5, ey + 1, ex, ey + 6, GxEPD_BLACK);
+      };
+      heart(cx - EYE_DX, cy + EYE_DY);
+      heart(cx + EYE_DX, cy + EYE_DY);
+      break;
+    }
+
+    case MOOD_CELEBRATE: {
+      // Star-ish eyes: 4-point burst (two crossing lines + center dot)
+      auto star = [&](int ex, int ey) {
+        d.drawLine(ex - 6, ey, ex + 6, ey, GxEPD_BLACK);
+        d.drawLine(ex, ey - 6, ex, ey + 6, GxEPD_BLACK);
+        d.drawLine(ex - 4, ey - 4, ex + 4, ey + 4, GxEPD_BLACK);
+        d.drawLine(ex - 4, ey + 4, ex + 4, ey - 4, GxEPD_BLACK);
+        d.fillCircle(ex, ey, 2, GxEPD_BLACK);
+      };
+      star(cx - EYE_DX, cy + EYE_DY);
+      star(cx + EYE_DX, cy + EYE_DY);
+      // Spark lines radiating around the head
+      for (int a = 0; a < 8; ++a) {
+        float rad = a * (3.14159f / 4.0f);
+        int x1 = cx + (int)((HEAD_R + 4)  * cos(rad));
+        int y1 = cy + (int)((HEAD_R + 4)  * sin(rad));
+        int x2 = cx + (int)((HEAD_R + 12) * cos(rad));
+        int y2 = cy + (int)((HEAD_R + 12) * sin(rad));
+        d.drawLine(x1, y1, x2, y2, GxEPD_BLACK);
+      }
+      break;
+    }
+
     case MOOD_SLEEP:
       // Horizontal lines (closed eyes)
       d.drawLine(cx - EYE_DX - EYE_R, cy + EYE_DY,
@@ -113,6 +156,19 @@ void drawBuddy(GxEPD2_BW<GxEPD2_154_D67, GxEPD2_154_D67::HEIGHT>& d,
 
   // Mouth per mood
   switch (mood) {
+    case MOOD_CELEBRATE:
+      // Big open smile (arc with filled interior hint)
+      drawArc(d, cx, cy + MOUTH_DY - 4, 14, true);
+      d.drawLine(cx - 14, cy + MOUTH_DY - 4, cx + 14, cy + MOUTH_DY - 4, GxEPD_BLACK);
+      break;
+    case MOOD_HEART:
+      // Soft smile
+      drawArc(d, cx, cy + MOUTH_DY - 1, 10, true);
+      break;
+    case MOOD_IDLE_BLINK:
+      // Same as IDLE — smile (blink keeps the smile stable so transition is minimal)
+      drawArc(d, cx, cy + MOUTH_DY - 2, 12, true);
+      break;
     case MOOD_BUSY:
       // Zigzag worry mouth
       d.drawLine(cx - 12, cy + MOUTH_DY,     cx - 6,  cy + MOUTH_DY - 3, GxEPD_BLACK);
