@@ -1,4 +1,5 @@
 #include "BuddyUI.h"
+#include "BuddyCharacter.h"
 #include <GxEPD2_BW.h>
 #include <Fonts/FreeMonoBold9pt7b.h>
 #include <SPI.h>
@@ -12,10 +13,6 @@ static const int PIN_SPI_MOSI     = 48;
 static const int PIN_SPI_MISO     = 46;
 static const int PIN_SPI_SCK      = 47;
 
-// Use GxEPD2's built-in driver for the GDEH/GDEY 0154 D67 panel (200x200 mono B/W).
-// WatchyDisplay in the Watchy library is a Watchy-specific fork of this; we go
-// direct to GxEPD2 to avoid pulling in the Watchy library (whose BLE.cpp would
-// link the old Bluedroid BLE stack alongside our NimBLE, causing GATT failures).
 static GxEPD2_BW<GxEPD2_154_D67, GxEPD2_154_D67::HEIGHT> eink(
   GxEPD2_154_D67(PIN_DISPLAY_CS, PIN_DISPLAY_DC, PIN_DISPLAY_RES, PIN_DISPLAY_BUSY)
 );
@@ -44,15 +41,17 @@ void BuddyUI::render(BuddyState& st) {
   if (now - lastFullRefreshMs > FULL_REFRESH_INTERVAL_MS) wantFull = true;
   if (st.prompt.active != lastPromptActive) wantFull = true;
 
+  BuddyMood mood = deriveMood(st, now);
+
   eink.setFullWindow();
-  eink.setFont(&FreeMonoBold9pt7b);
 
   eink.firstPage();
   do {
     eink.fillScreen(GxEPD_WHITE);
     eink.setTextColor(GxEPD_BLACK);
+    eink.setFont(&FreeMonoBold9pt7b);
 
-    // Top bar
+    // --- Top bar (y = 0..17) ---
     eink.setCursor(2, 13);
     if (st.connected && !st.isStale(now)) {
       eink.print("* LIVE");
@@ -72,42 +71,40 @@ void BuddyUI::render(BuddyState& st) {
       eink.setCursor(198 - (int)w, 13);
       eink.print(tokBuf);
     }
-
     eink.drawLine(0, 17, 200, 17, GxEPD_BLACK);
 
-    eink.setCursor(2, 34);
-    char line2[48];
-    snprintf(line2, sizeof(line2), "sess:%d run:%d wait:%d",
-             st.total, st.running, st.waiting);
-    eink.print(line2);
+    // --- Buddy character (center at 100, 78; head radius 46) ---
+    drawBuddy(eink, mood, 100, 78);
 
+    // --- Info strip (y = 135..175) ---
+    if (st.running > 0 || st.waiting > 0 || st.total > 0) {
+      char counts[40];
+      snprintf(counts, sizeof(counts), "%d run %d wait %d total",
+               st.running, st.waiting, st.total);
+      eink.setCursor(2, 148);
+      eink.print(counts);
+    }
     if (st.msg.length() > 0) {
-      eink.setCursor(2, 54);
+      eink.setCursor(2, 164);
       eink.print(fit(st.msg, 22));
     }
 
-    int y = 78;
-    for (int i = 0; i < st.entryCount && i < 3; ++i) {
-      eink.setCursor(2, y);
-      eink.print(fit(st.entries[i], 22));
-      y += 17;
-    }
-
+    // --- Bottom region (y = 178..199) ---
     if (st.prompt.active) {
-      eink.drawLine(0, 140, 200, 140, GxEPD_BLACK);
-      eink.setCursor(2, 155);
-      eink.print(fit(String("? ") + st.prompt.tool, 22));
+      eink.drawLine(0, 177, 200, 177, GxEPD_BLACK);
       if (st.prompt.hint.length() > 0) {
-        eink.setCursor(2, 172);
+        eink.setCursor(2, 189);
         eink.print(fit(st.prompt.hint, 22));
       }
-      eink.setCursor(2, 194);
-      eink.print("[M] yes   [B] no");
-    } else if (!st.connected) {
-      eink.setCursor(2, 185);
-      eink.print("Open Hardware Buddy");
       eink.setCursor(2, 199);
-      eink.print("in Claude Desktop.");
+      eink.print("[M] yes  [B] no");
+    } else if (!st.connected || st.isStale(now)) {
+      eink.setCursor(2, 199);
+      eink.print("Open Hardware Buddy");
+    } else if (st.entryCount > 0) {
+      // Newest entry
+      eink.setCursor(2, 199);
+      eink.print(fit(st.entries[0], 22));
     }
   } while (eink.nextPage());
 
