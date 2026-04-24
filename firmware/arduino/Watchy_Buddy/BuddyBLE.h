@@ -10,11 +10,13 @@
 class BuddyBLE {
 public:
   void begin(BuddyState* state);
-  void tick();  // call each loop iteration
+  void tick();
 
-  // Send an outbound JSON line (already terminated with \n)
   void sendLine(const String& line);
 
-  // Advertising display name (generated from MAC suffix)
+  // Pack commands received via BLE are queued here for main-loop dispatch
+  bool hasPendingPackCmd() const;
+  String popPackCmd();
+
   String deviceName;
 };

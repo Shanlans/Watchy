@@ -7,6 +7,8 @@ static NimBLECharacteristic* g_txChar = nullptr;
 static NimBLECharacteristic* g_rxChar = nullptr;
 static NimBLEServer* g_server = nullptr;
 static String g_rxBuffer;
+// Pack command FIFO — stores multiple commands separated by \x01 sentinel
+static String g_packCmdQueue;
 
 class ServerCallbacks : public NimBLEServerCallbacks {
   void onConnect(NimBLEServer* s, NimBLEConnInfo& info) override {
@@ -44,7 +46,10 @@ class RxCallbacks : public NimBLECharacteristicCallbacks {
       g_rxBuffer.remove(0, nl + 1);
       if (line.length() == 0) continue;
       String reply = g_state->handleLine(line);
-      if (reply.length() > 0 && g_txChar) {
+      if (reply.startsWith("PACK:")) {
+        if (g_packCmdQueue.length() > 0) g_packCmdQueue += '\x01';
+        g_packCmdQueue += reply.substring(5);  // append to FIFO
+      } else if (reply.length() > 0 && g_txChar) {
         g_txChar->setValue((uint8_t*)reply.c_str(), reply.length());
         g_txChar->notify();
       }
@@ -107,6 +112,19 @@ void BuddyBLE::begin(BuddyState* state) {
 }
 
 void BuddyBLE::tick() {}
+
+bool BuddyBLE::hasPendingPackCmd() const { return g_packCmdQueue.length() > 0; }
+String BuddyBLE::popPackCmd() {
+  int sep = g_packCmdQueue.indexOf('\x01');
+  if (sep < 0) {
+    String s = g_packCmdQueue;
+    g_packCmdQueue = "";
+    return s;
+  }
+  String s = g_packCmdQueue.substring(0, sep);
+  g_packCmdQueue.remove(0, sep + 1);
+  return s;
+}
 
 void BuddyBLE::sendLine(const String& line) {
   if (!g_txChar || !g_state || !g_state->connected) return;

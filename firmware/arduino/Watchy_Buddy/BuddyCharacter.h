@@ -17,7 +17,10 @@ enum BuddyMood {
 
 BuddyMood deriveMood(BuddyState& st, uint32_t nowMs);
 
-// Draw the buddy face centered at (cx, cy). Face occupies approximately
-// a 96x96 region around the center.
+class BuddyPack;  // forward decl
+
+// Draw the buddy face centered at (cx, cy). If pack is loaded, uses bitmap;
+// otherwise falls back to GFX primitives.
 void drawBuddy(GxEPD2_BW<GxEPD2_154_D67, GxEPD2_154_D67::HEIGHT>& d,
-               BuddyMood mood, int cx, int cy);
+               BuddyMood mood, int cx, int cy,
+               BuddyPack* pack = nullptr, uint32_t nowMs = 0);

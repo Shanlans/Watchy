@@ -6,9 +6,11 @@
 // Expect a few hours of battery life; Phase C will add an on/off mode.
 
 #include <Arduino.h>
+#include <ArduinoJson.h>
 #include "BuddyState.h"
 #include "BuddyBLE.h"
 #include "BuddyUI.h"
+#include "BuddyPack.h"
 
 // Button pins (ESP32-S3 Watchy V3)
 static const int MENU_BTN = 7;
@@ -19,6 +21,7 @@ static const int DOWN_BTN = 45;
 BuddyState state;
 BuddyBLE   ble;
 BuddyUI    ui;
+BuddyPack  pack;
 
 // Debounced button edge detection
 struct Btn {
@@ -63,9 +66,13 @@ void setup() {
   pinMode(UP_BTN,   INPUT);
   pinMode(DOWN_BTN, INPUT);
 
-  // Start BLE FIRST so advertising begins immediately on boot, before the
-  // slower E-Ink refresh delays user-visible UI. BLE callbacks run on their
-  // own task so they are not blocked by the display refresh below.
+  // Mount FFat + load previously active pack before BLE/UI
+  pack.begin();
+  String savedPack = pack.loadActivePack();
+  if (savedPack.length() > 0) {
+    pack.load(savedPack);
+  }
+
   ble.begin(&state);
   ui.begin();
 
@@ -106,6 +113,68 @@ void loop() {
   // Advance animation state (blink, override expiry)
   ui.tick(state);
 
+  // Handle pack commands from BLE
+  if (ble.hasPendingPackCmd()) {
+    String raw = ble.popPackCmd();
+    JsonDocument doc;
+    if (!deserializeJson(doc, raw)) {
+      const char* cmd = doc["cmd"];
+      String ack;
+      JsonDocument reply;
+
+      if (strcmp(cmd, "pack_begin") == 0) {
+        String name = doc["name"] | "unknown";
+        uint32_t size = doc["size"] | 0;
+        bool ok = pack.createPackFile(name, size);
+        reply["ack"] = "pack_begin"; reply["ok"] = ok;
+      }
+      else if (strcmp(cmd, "pack_chunk") == 0) {
+        String hexData = doc["data"] | "";
+        size_t len = hexData.length() / 2;
+        uint8_t* buf = (uint8_t*)malloc(len);
+        if (buf) {
+          for (size_t i = 0; i < len; ++i) {
+            char hi = hexData[i*2], lo = hexData[i*2+1];
+            auto h = [](char c) -> uint8_t { return (c >= 'a') ? c-'a'+10 : (c >= 'A') ? c-'A'+10 : c-'0'; };
+            buf[i] = (h(hi) << 4) | h(lo);
+          }
+          pack.appendChunk(buf, len);
+          free(buf);
+        }
+        reply["ack"] = "pack_chunk"; reply["ok"] = true; reply["n"] = (int)len;
+      }
+      else if (strcmp(cmd, "pack_end") == 0) {
+        uint32_t crc = doc["crc"] | 0;
+        bool ok = pack.finalizePackFile(crc);
+        reply["ack"] = "pack_end"; reply["ok"] = ok;
+      }
+      else if (strcmp(cmd, "pack_select") == 0) {
+        String name = doc["name"] | "";
+        bool ok = pack.load(name);
+        if (ok) pack.saveActivePack(name);
+        state.dirty = true;
+        ui.forceFullRefresh();  // bypass content hash — pack changed
+        reply["ack"] = "pack_select"; reply["ok"] = ok;
+      }
+      else if (strcmp(cmd, "pack_clear") == 0) {
+        pack.unload();
+        pack.saveActivePack("");
+        state.dirty = true;
+        ui.forceFullRefresh();
+        reply["ack"] = "pack_clear"; reply["ok"] = true;
+      }
+      else if (strcmp(cmd, "pack_list") == 0) {
+        reply["ack"] = "pack_list"; reply["ok"] = true;
+        reply["packs"] = serialized(pack.listPacks());
+      }
+
+      String out;
+      serializeJson(reply, out);
+      out += '\n';
+      ble.sendLine(out);
+    }
+  }
+
   // Periodic UI refresh (1 Hz)
   static uint32_t lastRender = 0;
   uint32_t now = millis();
@@ -113,7 +182,7 @@ void loop() {
     lastRender = now;
     // E-Ink redraw only if something actually changed or status dirty
     if (state.dirty || state.isStale(now)) {
-      ui.render(state);
+      ui.render(state, &pack);
     }
   }
 

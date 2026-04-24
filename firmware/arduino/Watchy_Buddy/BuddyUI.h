@@ -2,10 +2,12 @@
 #include <Arduino.h>
 #include "BuddyState.h"
 
+class BuddyPack;
+
 class BuddyUI {
 public:
   void begin();
-  void render(BuddyState& st);
+  void render(BuddyState& st, BuddyPack* pack = nullptr);
   void forceFullRefresh();
   void tick(BuddyState& st);          // call every loop — advances animations, returns via dirty
 

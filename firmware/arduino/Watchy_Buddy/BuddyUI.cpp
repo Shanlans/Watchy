@@ -1,5 +1,6 @@
 #include "BuddyUI.h"
 #include "BuddyCharacter.h"
+#include "BuddyPack.h"
 #include <GxEPD2_BW.h>
 #include <Fonts/FreeMonoBold9pt7b.h>
 #include <SPI.h>
@@ -108,7 +109,7 @@ uint32_t BuddyUI::computeHash(BuddyState& st, int effMood) const {
   return h;
 }
 
-void BuddyUI::render(BuddyState& st) {
+void BuddyUI::render(BuddyState& st, BuddyPack* pack) {
   const uint32_t now = millis();
 
   // Effective mood = override (celebrate/heart) > blink > derived
@@ -172,7 +173,7 @@ void BuddyUI::render(BuddyState& st) {
     eink.drawLine(0, 17, 200, 17, GxEPD_BLACK);
 
     // Buddy character center
-    drawBuddy(eink, (BuddyMood)effMood, 100, 78);
+    drawBuddy(eink, (BuddyMood)effMood, 100, 78, pack, now);
 
     // Info strip
     if (st.running > 0 || st.waiting > 0 || st.total > 0) {

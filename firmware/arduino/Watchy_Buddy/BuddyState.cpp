@@ -75,6 +75,11 @@ String BuddyState::handleLine(const String& line) {
     reply["ok"] = true;
     reply["n"] = 0;
 
+    // Pack commands are dispatched by main loop (needs BuddyPack access)
+    if (strncmp(cmd, "pack_", 5) == 0) {
+      return String("PACK:") + line;
+    }
+
     if (strcmp(cmd, "status") == 0) {
       JsonObject data = reply["data"].to<JsonObject>();
       data["name"] = deviceName.length() ? deviceName : "Claude-Watchy";

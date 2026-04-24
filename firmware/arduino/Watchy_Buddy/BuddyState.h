@@ -51,6 +51,7 @@ public:
 
   // Parse one JSON line received from Claude Desktop.
   // Returns a response JSON line (including trailing \n) to send back, or empty string if no response needed.
+  // If the line is a pack_* command, returns the raw line prefixed with "PACK:" so caller can dispatch.
   String handleLine(const String& line);
 
   // True if no heartbeat for >30 sec
